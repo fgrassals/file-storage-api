@@ -1,11 +1,16 @@
 package com.demo.filestorageapi.core.model;
 
 import org.hibernate.annotations.Immutable;
+import org.hibernate.annotations.Type;
 
+import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.Table;
+import java.sql.Blob;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
@@ -23,7 +28,12 @@ public class UserFile {
     private Long id;
     private String filename;
     private String contentType;
+    @Type(type = "uuid-char")
     private UUID version;
+    // marking this field lazy allows us to fetch the potentially heavy blob only when needed
+    @Lob
+    @Basic(fetch = FetchType.LAZY)
+    private Blob content;
     private Long sizeInBytes;
     private LocalDateTime createdAt;
     private LocalDateTime lastModifiedAt;
@@ -61,6 +71,14 @@ public class UserFile {
 
     public void setVersion(UUID version) {
         this.version = version;
+    }
+
+    public Blob getContent() {
+        return content;
+    }
+
+    public void setContent(Blob content) {
+        this.content = content;
     }
 
     public Long getSizeInBytes() {

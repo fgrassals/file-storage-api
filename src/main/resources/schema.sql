@@ -44,6 +44,7 @@ create view user_files_view as (
                f.filename,
                f.content_type,
                fv.uuid version,
+               fv.content,
                fv.size size_in_bytes,
                f.created_at,
                fv.created_at last_modified_at,

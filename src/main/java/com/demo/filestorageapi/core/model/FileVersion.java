@@ -22,9 +22,11 @@ public class FileVersion {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // marking this field lazy allows us to fetch the potentially heavy blob only when needed
     @Lob
     @Basic(fetch = FetchType.LAZY)
     private Blob content;
+
     private long size; // size in bytes
 
     @Column(updatable = false)
