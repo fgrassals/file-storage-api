@@ -12,7 +12,7 @@ import java.util.Optional;
  */
 public interface UserRepository extends JpaRepository<User, Long> {
     /**
-     *  Retrieves a user by it's username
+     *  Retrieves a user by its username
      *
      * @param username the user's username
      * @return the user with the given username or {@literal Optional#empty()} if none found.
