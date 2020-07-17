@@ -1,8 +1,18 @@
+buildscript {
+	// this is required to load the org.hibernate.orm plugin, as it isn't registered in gradle's plugin repo
+	dependencies {
+		classpath "org.hibernate:hibernate-gradle-plugin:5.4.17.Final"
+	}
+}
+
 plugins {
 	id 'org.springframework.boot' version '2.3.1.RELEASE'
 	id 'io.spring.dependency-management' version '1.0.9.RELEASE'
 	id 'java'
+	id "com.github.mrsarm.jshell.plugin" version "1.0.0"
 }
+
+apply plugin: 'org.hibernate.orm'
 
 group = 'com.demo'
 version = '0.0.1-SNAPSHOT'
@@ -15,6 +25,13 @@ repositories {
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+	// we're using the hibernate jpa implementation specific code
+	implementation 'org.hibernate:hibernate-core'
+
+	runtimeOnly 'mysql:mysql-connector-java'
+
 	testImplementation('org.springframework.boot:spring-boot-starter-test') {
 		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
 	}
@@ -23,4 +40,11 @@ dependencies {
 
 test {
 	useJUnitPlatform()
+}
+
+hibernate {
+	enhance {
+		// enables the lazy initialization enhancement, so we can load Blob columns lazily
+		enableLazyInitialization = true
+	}
 }
