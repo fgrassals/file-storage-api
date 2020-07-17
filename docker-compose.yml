@@ -6,6 +6,7 @@ services:
     restart: always
     volumes:
       - .volumes/mysql:/var/lib/mysql
+      - ./data:/docker-entrypoint-initdb.d
     environment:
       MYSQL_DATABASE: files
       MYSQL_USER: files

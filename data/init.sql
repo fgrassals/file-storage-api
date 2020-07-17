@@ -1,3 +1,7 @@
+/*
+ * Database initialization script
+ */
+
 create table users
 (
     id               bigint      not null primary key auto_increment,
@@ -12,7 +16,7 @@ create table files
     id               bigint       not null primary key auto_increment,
     filename         varchar(100) not null,
     content_type     varchar(50)  not null,
-    user_id          int          not null,
+    user_id          bigint       not null,
     created_at datetime    not null default current_timestamp,
 
     foreign key (user_id) references users (id),
@@ -39,19 +43,24 @@ create index ix_file_versions_created_at on file_versions (file_id, created_at d
   and the oldest will have a rank of N
 */
 create view user_files_view as (
-    with files_ranked as (
-        select f.id,
-               f.filename,
-               f.content_type,
-               fv.uuid version,
-               fv.content,
-               fv.size size_in_bytes,
-               f.created_at,
-               fv.created_at last_modified_at,
-               f.user_id,
-               rank() over (partition by f.user_id, f.filename order by fv.created_at desc) date_created_rank
-        from files f
+with files_ranked as (
+   select f.id,
+          f.filename,
+          f.content_type,
+          fv.uuid version,
+          fv.content,
+          fv.size size_in_bytes,
+          f.created_at,
+          fv.created_at last_modified_at,
+          f.user_id,
+          rank() over (partition by f.user_id, f.filename order by fv.created_at desc) date_created_rank
+   from files f
             inner join file_versions fv on f.id = fv.file_id
     )
     select * from files_ranked
 );
+
+/* username: test, password: test */
+insert into users (username, password) values ('test', '$2a$10$/9iZqwhMOwhtZyhq0edzteESqErGMglHGpG8/U8gssc5ZuT/Kx0/G');
+/* username: test2, password: test */
+insert into users (username, password) values ('test2', '$2a$10$/9iZqwhMOwhtZyhq0edzteESqErGMglHGpG8/U8gssc5ZuT/Kx0/G');
