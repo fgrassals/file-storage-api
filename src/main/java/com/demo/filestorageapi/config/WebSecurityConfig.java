@@ -40,12 +40,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         // provides a way to get a user from the db to authenticate
-        auth.userDetailsService(username -> {
-            var user = userRepository.findByUsername(username)
-                    .orElseThrow(() -> new UsernameNotFoundException("Invalid credentials"));
-
-            return new User(user.getUsername(), user.getPassword(), Collections.emptyList());
-        });
+        auth.userDetailsService(username -> userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Invalid credentials")));
     }
 
     @Bean
