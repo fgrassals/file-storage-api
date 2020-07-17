@@ -16,8 +16,8 @@ $ git clone https://github.com/fgrassals/file-storage-api.git
 $ cd file-storage-api
 
 # Use docker-compose to build the docker images
-# This will download some files so it may take a while
-$ docker-compose build web
+# This will download some files and build the project so it may take a while
+$ docker-compose build app
 
 # Use docker-compose to start the application and database containers
 $ docker-compose up
@@ -94,7 +94,7 @@ Deletes a file, along with all its versions.
 * URL: `/files/:id`
 * Method: `DELETE`
 * Parameters:
-  * `:id`: The id of the existing file to delete
+  * `:id` The id of the existing file to delete
 
 #### Example request
 ```shell script
@@ -173,7 +173,7 @@ Gets the information for the most recent version of a specific file for the user
 * URL: `/files/:id`
 * Method: `GET`
 * Parameters:
-  * `:id`: The id of the existing file to fetch
+  * `:id` The id of the existing file to fetch
 
 #### Example request
 ```shell script
@@ -203,11 +203,11 @@ Returns a `Content-Disposition` header specifying the filename and a
 * URL: `/files/:id/download`
 * Method: `GET`
 * Parameters:
-  * `:id`: The id of the existing file to fetch
+  * `:id` The id of the existing file to fetch
 
 #### Example request
 ```shell script
-$ curl --location --request GET 'http://localhost:8080/files/10' -H 'Authorization: Basic dGVzdDp0ZXN0' -OJ
+$ curl --location --request GET 'http://localhost:8080/files/10/download' -H 'Authorization: Basic dGVzdDp0ZXN0' -OJ
 ```
 
 #### Success response
@@ -226,7 +226,7 @@ Gets a list of file versions for an existing file ordered by the most recent.
 * URL: `/files/:id/versions`
 * Method: `GET`
 * Parameters:
-  * `:id`: The id of the existing file to fetch
+  * `:id` The id of the existing file to fetch
 
 #### Example request
 ```shell script
@@ -269,8 +269,8 @@ Gets a specific version for an existing file.
 * URL: `/files/:id/versions/:uuid`
 * Method: `GET`
 * Parameters:
-  * `:id`: The id of the existing file to fetch
-  * `:uuid`: The uuid of the file version to fetch
+  * `:id` The id of the existing file to fetch
+  * `:uuid` The uuid of the file version to fetch
 
 #### Example request
 ```shell script
@@ -299,8 +299,8 @@ Returns a `Content-Disposition` header specifying the filename and a
 * URL: `/files/:id/versions/:uuid/download`
 * Method: `GET`
 * Parameters:
-  * `:id`: The id of the existing file to fetch
-  * `:uuid`: The uuid of the file version to fetch
+  * `:id` The id of the existing file to fetch
+  * `:uuid` The uuid of the file version to fetch
 
 #### Example request
 ```shell script
@@ -318,21 +318,21 @@ $ curl --location --request GET 'http://localhost:8080/files/10/versions/6196522
   
 ## Error responses
 
-Every error response will return an HTTP code and a json object describing the error.
+Error responses will have an HTTP code and a json object (excluding 401s) describing the error.
 
 ### HTTP Codes
- * `400 Bad Request`: when the sent parameters are invalid for a given request
- * `401 Unauthorized`: when the user credentials sent in the Authorization header are not correct
- * `404 Not Found`: when the resource specified in the request's url was not found
- * `405 Method NOt Allowed`: when sending an unsupported HTTP method for a given url
- * `500 Internal Server Error`: means something went wrong in the server while processing the request
+ * `400 Bad Request` when the parameters sent are invalid for a given request
+ * `401 Unauthorized` when the user credentials sent in the Authorization header are not correct
+ * `404 Not Found` when the resource specified in the request's url was not found
+ * `405 Method NOt Allowed` when sending an unsupported HTTP method for a given url
+ * `500 Internal Server Error` means something went wrong in the server while processing the request
 
 ### Response payload
 
 A JSON object with the following fields:
- * `code`: number corresponding to the response HTTP code
- * `error`: description of the response HTTP code
- * `message`: short message describing the error`
+ * `code` number corresponding to the response HTTP code
+ * `error` description of the response HTTP code
+ * `message` short message describing the error`
  
 ### Examples
 
@@ -353,10 +353,3 @@ Trying to create a file without uploading one
     "message": "Please upload a valid file"
 }
 ```
-
-
-
-
-
-
-
