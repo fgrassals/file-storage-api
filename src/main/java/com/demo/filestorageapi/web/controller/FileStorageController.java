@@ -149,7 +149,7 @@ public class FileStorageController {
      * @return {@link FileResponse}
      */
     @GetMapping("/{fileId}/versions/{versionUUID}")
-    public ResponseEntity<FileVersionResponse> getFileVersions(@PathVariable Long fileId,
+    public ResponseEntity<FileVersionResponse> getFileVersion(@PathVariable Long fileId,
                                                                @PathVariable UUID versionUUID,
                                                                Authentication authentication)  {
         var version = fileStorageService.getFileVersion(versionUUID, fileId, getCurrentUser(authentication));
