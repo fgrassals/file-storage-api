@@ -2,10 +2,15 @@ package com.demo.filestorageapi.web.controller;
 
 import com.demo.filestorageapi.core.model.User;
 import com.demo.filestorageapi.core.service.FileStorageService;
+import com.demo.filestorageapi.web.exception.ReadFileForDownloadException;
 import com.demo.filestorageapi.web.exception.UploadedFileAccessException;
 import com.demo.filestorageapi.web.response.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.StringUtils;
@@ -16,6 +21,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.IOException;
 import java.net.URI;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
 
@@ -124,6 +130,24 @@ public class FileStorageController {
     }
 
     /**
+     * Downloads the content of the newest version of a file
+     * @param fileId The Id of the file
+     * @param authentication Spring security's authentication object (injected at runtime)
+     * @return a {@link Resource} stream with the file contents
+     */
+    @GetMapping("/{fileId}/download")
+    public ResponseEntity<Resource> downloadFile(@PathVariable Long fileId, Authentication authentication)  {
+        var file = fileStorageService.getFile(fileId, getCurrentUser(authentication));
+        try {
+            // the file contents will be streamed to the caller
+            var resource = new InputStreamResource(file.getContent().getBinaryStream());
+            return buildDownloadResponseEntity(file.getFilename(), file.getContentType(), resource);
+        } catch (SQLException e) {
+            throw new ReadFileForDownloadException(e);
+        }
+    }
+
+    /**
      * API method to get a list of versions details of a file
      * @param fileId The Id of the file
      * @param authentication Spring security's authentication object (injected at runtime)
@@ -154,6 +178,34 @@ public class FileStorageController {
                                                                Authentication authentication)  {
         var version = fileStorageService.getFileVersion(versionUUID, fileId, getCurrentUser(authentication));
         return ResponseEntity.ok(new FileVersionResponse(version));
+    }
+
+    /**
+     * Downloads the content for a specific version of a file
+     * @param fileId The Id of the file
+     * @param versionUUID The UUID of the file version
+     * @param authentication Spring security's authentication object (injected at runtime)
+     * @return a {@link Resource} stream with the file contents
+     */
+    @GetMapping("/{fileId}/versions/{versionUUID}/download")
+    public ResponseEntity<Resource> downloadFileVersion(@PathVariable Long fileId,
+                                                        @PathVariable UUID versionUUID,
+                                                        Authentication authentication)  {
+        var version = fileStorageService.getFileVersion(versionUUID, fileId, getCurrentUser(authentication));
+        try {
+            var resource = new InputStreamResource(version.getContent().getBinaryStream());
+            return buildDownloadResponseEntity(version.getFile().getFilename(), version.getFile().getContentType(), resource);
+        } catch (SQLException e) {
+            throw new ReadFileForDownloadException(e);
+        }
+    }
+
+    // builds a response entity containing a file resource to download
+    private ResponseEntity<Resource> buildDownloadResponseEntity(String filename, String contentType, Resource resource) {
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(contentType))
+                .header(HttpHeaders.CONTENT_DISPOSITION, String.format("attachment; filename=\"%s\"", filename))
+                .body(resource);
     }
 
     // gets the current authenticated user
